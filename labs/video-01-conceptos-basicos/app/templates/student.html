@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Expediente · Campus Lab{% endblock %}
+
+{% block content %}
+<p class="eyebrow">EXPEDIENTE ACADÉMICO</p>
+
+<div class="page-heading">
+  <div>
+    <h1>{{ student['name'] }}</h1>
+    <p class="muted">{{ student['career'] }}</p>
+  </div>
+  <div class="record-id">
+    <span>Identificador del expediente</span>
+    <strong>{{ student['id'] }}</strong>
+  </div>
+</div>
+
+<section class="card">
+  <div class="section-heading">
+    <h2>Calificaciones</h2>
+    <span class="muted">Período de demostración</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Asignatura</th>
+          <th scope="col" class="score">Nota / 10</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for grade in grades %}
+          <tr>
+            <td>{{ grade['subject'] }}</td>
+            <td class="score"><strong>
+              {{ "%.1f"|format(grade['score']) }}
+            </strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="record-footer">
+  <span>Información académica personal · Datos ficticios</span>
+  <a href="{{ url_for('student',
+                      student_id=session['student_id']) }}">
+    Ir a mi expediente
+  </a>
+</div>
+{% endblock %}

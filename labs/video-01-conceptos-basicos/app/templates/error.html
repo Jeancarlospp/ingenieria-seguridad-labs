@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Campus Lab{% endblock %}
+
+{% block content %}
+<section class="card error-card">
+  <p class="error-code">{{ code }}</p>
+  <h1>{{ title }}</h1>
+  <p class="muted">{{ message }}</p>
+
+  {% if session.get('student_id') %}
+    <p>Sesión activa: <strong>{{ session['student_name'] }}</strong></p>
+    <a class="button"
+       href="{{ url_for('student',
+                         student_id=session['student_id']) }}">
+      Volver a mi expediente
+    </a>
+  {% else %}
+    <a class="button" href="{{ url_for('login') }}">
+      Iniciar sesión
+    </a>
+  {% endif %}
+</section>
+{% endblock %}

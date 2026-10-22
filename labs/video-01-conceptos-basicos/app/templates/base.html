@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Campus Lab{% endblock %}</title>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="{{ url_for('index') }}">CAMPUS<span>LAB</span></a>
+
+    <div class="header-actions">
+      {% if session.get('student_id') %}
+        <span>Sesión: {{ session['student_name'] }}</span>
+        <form action="{{ url_for('logout') }}" method="post">
+          <button class="button secondary" type="submit">Salir</button>
+        </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="lab-banner">
+      <span>Laboratorio educativo · Datos ficticios</span>
+      <strong class="badge {{ lab_mode }}">
+        {{ 'Modo vulnerable' if lab_mode == 'vulnerable'
+           else 'Modo protegido' }}
+      </strong>
+    </div>
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    Ingeniería de la Seguridad · Laboratorio 01
+  </footer>
+</body>
+</html>

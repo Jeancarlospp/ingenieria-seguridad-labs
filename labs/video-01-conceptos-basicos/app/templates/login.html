@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Ingresar · Campus Lab{% endblock %}
+
+{% block content %}
+<section class="login-layout">
+  <div>
+    <p class="eyebrow">PORTAL ACADÉMICO</p>
+    <h1>Tu información.<br>Tu espacio académico.</h1>
+    <p class="muted intro">
+      Consulta tus asignaturas y calificaciones desde un solo lugar.
+    </p>
+
+    <aside class="demo-box">
+      <h2>Cuentas de demostración</h2>
+      <p>Ana: <code>ana</code> · Luis: <code>luis</code></p>
+      <p>Contraseña para ambas: <code>Laboratorio123!</code></p>
+      <small>Credenciales ficticias para este laboratorio local.</small>
+    </aside>
+  </div>
+
+  <section class="card">
+    <h2>Iniciar sesión</h2>
+    <p class="muted">Ingresa con tu cuenta de estudiante.</p>
+
+    {% if error %}
+      <div class="alert" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('login') }}"
+          class="login-form">
+      <label for="username">Usuario</label>
+      <input id="username" name="username"
+             autocomplete="username" required>
+
+      <label for="password">Contraseña</label>
+      <input id="password" name="password" type="password"
+             autocomplete="current-password" required>
+
+      <button class="button" type="submit">Ingresar al portal</button>
+    </form>
+  </section>
+</section>
+{% endblock %}

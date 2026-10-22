@@ -1,0 +1,13 @@
+services:
+  portal:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      LAB_MODE: "${LAB_MODE:-vulnerable}"
+      SECRET_KEY: "clave-ficticia-solo-para-este-laboratorio"
+    volumes:
+      - portal_data:/lab/instance
+
+volumes:
+  portal_data:
