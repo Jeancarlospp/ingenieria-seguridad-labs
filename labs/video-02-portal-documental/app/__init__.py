@@ -1,3 +1,4 @@
+import click
 import os
 import secrets
 import sqlite3
@@ -596,7 +597,7 @@ def create_app(test_config=None):
             "documents/delete.html",
             document=document,
         )
-        
+
     @app.errorhandler(400)
     def bad_request(error):
         return render_template(
@@ -645,6 +646,42 @@ def create_app(test_config=None):
         )
 
         print(f"Documentos creados: {created}")
+    @app.cli.command("backup-document")
+    @click.argument("document_id", type=int)
+    def backup_document_command(document_id):
+        from .backups import BackupError, create_document_backup
+
+        try:
+            backup_name = create_document_backup(
+                get_db(),
+                app.instance_path,
+                document_id,
+            )
+        except BackupError as error:
+            raise click.ClickException(str(error)) from error
+
+        click.echo(f"Respaldo creado: {backup_name}")
+
+    @app.cli.command("restore-document")
+    @click.argument("backup_name")
+    def restore_document_command(backup_name):
+        from .backups import BackupError, restore_document_backup
+
+        try:
+            document_id, cleanup_warning = restore_document_backup(
+                get_db(),
+                app.instance_path,
+                backup_name,
+            )
+        except BackupError as error:
+            raise click.ClickException(str(error)) from error
+
+        click.echo(f"Documento restaurado: {document_id}")
+
+        if cleanup_warning:
+            click.echo(
+                "Aviso: quedó un archivo anterior pendiente de limpieza."
+            )
 
     with app.app_context():
         initialize_database()
