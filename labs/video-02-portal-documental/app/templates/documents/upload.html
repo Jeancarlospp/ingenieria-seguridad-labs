@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Cargar documento · Alameda{% endblock %}
+
+{% block workspace_content %}
+<a class="back-link" href="{{ url_for('documents') }}">
+  ← Mis documentos
+</a>
+
+<header class="page-heading">
+  <div>
+    <span class="eyebrow">GESTIÓN DOCUMENTAL</span>
+    <h1>Cargar documento</h1>
+    <p class="supporting-text">
+      Publica un archivo para una de tus asignaturas.
+    </p>
+  </div>
+</header>
+
+<section class="content-panel document-form-panel">
+  {% if error %}
+    <div class="message message-error" role="alert">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post"
+        action="{{ url_for('document_upload') }}"
+        enctype="multipart/form-data"
+        class="form-stack">
+
+    <input type="hidden" name="csrf_token"
+           value="{{ csrf_token }}">
+
+    <div class="field">
+      <label for="title">Título del documento</label>
+      <input id="title" name="title"
+             value="{{ values['title'] }}"
+             maxlength="180" required>
+    </div>
+
+    <div class="field">
+      <label for="subject">Asignatura</label>
+      <select id="subject" name="subject_id" required>
+        <option value="">Selecciona una asignatura</option>
+        {% for subject in subjects %}
+          <option value="{{ subject['id'] }}"
+                  {% if values['subject_id'] == subject['id']|string %}
+                    selected
+                  {% endif %}>
+            {{ subject['name'] }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="audience">Audiencia</label>
+      <select id="audience" name="audience" required>
+        <option value="students"
+                {% if values['audience'] == 'students' %}selected{% endif %}>
+          Estudiantes y docente
+        </option>
+        <option value="teachers"
+                {% if values['audience'] == 'teachers' %}selected{% endif %}>
+          Solo docente
+        </option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="file">Archivo PDF</label>
+      <input id="file" name="file" type="file"
+             accept=".pdf,application/pdf"
+             aria-describedby="file-help" required>
+      <small id="file-help" class="field-help">
+        Máximo 8 MB y 100 páginas. Sin contraseña.
+      </small>
+    </div>
+
+    <div class="form-actions">
+      <button class="button button-primary" type="submit">
+        Publicar documento
+      </button>
+      <a class="button button-secondary"
+         href="{{ url_for('documents') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Sustituir archivo · Alameda{% endblock %}
+
+{% block workspace_content %}
+<a class="back-link"
+   href="{{ url_for('document_detail',
+                    document_id=document['id']) }}">
+  ← Volver al documento
+</a>
+
+<header class="page-heading">
+  <div>
+    <span class="eyebrow">{{ document['subject_name'] }}</span>
+    <h1>Sustituir archivo</h1>
+    <p class="supporting-text">{{ document['title'] }}</p>
+  </div>
+</header>
+
+<section class="content-panel document-form-panel">
+  <div class="current-file">
+    <span class="field-help">Archivo actual</span>
+    <strong>{{ document['original_name'] }}</strong>
+    <span class="field-help">
+      PDF · {{ document['size_bytes']|filesizeformat }}
+    </span>
+  </div>
+
+  <p class="supporting-text">
+    El nuevo archivo reemplazará el contenido actual de este documento.
+    Se conservarán su título, asignatura y audiencia.
+  </p>
+
+  {% if error %}
+    <div class="message message-error" role="alert">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post"
+        action="{{ url_for('document_replace',
+                           document_id=document['id']) }}"
+        enctype="multipart/form-data"
+        class="form-stack">
+
+    <input type="hidden" name="csrf_token"
+           value="{{ csrf_token }}">
+
+    <div class="field">
+      <label for="file">Nuevo archivo PDF</label>
+      <input id="file" name="file" type="file"
+             accept=".pdf,application/pdf"
+             aria-describedby="file-help" required>
+      <small id="file-help" class="field-help">
+        Máximo 8 MB y 100 páginas. Sin contraseña.
+      </small>
+    </div>
+
+    <div class="form-actions">
+      <button class="button button-primary" type="submit">
+        Sustituir archivo
+      </button>
+
+      <a class="button button-secondary"
+         href="{{ url_for('document_detail',
+                          document_id=document['id']) }}">
+        Cancelar
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}

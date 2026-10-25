@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Ingresar · Instituto Alameda{% endblock %}
+
+{% block public_content %}
+<div class="login-page">
+  <section class="login-brand-panel">
+    <a class="institution" href="{{ url_for('index') }}">
+      <span class="institution-mark" aria-hidden="true">A</span>
+      <span>
+        <strong>ALAMEDA</strong>
+        <small>Instituto de educación</small>
+      </span>
+    </a>
+
+    <div class="login-introduction">
+      <span class="overline">PORTAL DOCUMENTAL</span>
+      <h1>Tu comunidad.<br>Tu espacio académico.</h1>
+      <p>
+        Un espacio para consultar y compartir los documentos
+        que acompañan tu formación.
+      </p>
+
+      <div class="brand-divider"></div>
+      <span class="brand-caption">
+        Instituto Alameda
+      </span>
+    </div>
+
+    <div class="brand-decoration" aria-hidden="true"></div>
+  </section>
+
+  <section class="login-form-panel">
+    <div class="login-form-container">
+      <span class="eyebrow">BIENVENIDO A ALAMEDA</span>
+      <h2>Accede a tu espacio académico</h2>
+      <p class="supporting-text">
+        Ingresa con tu cuenta institucional.
+      </p>
+
+      {% if error %}
+        <div class="message message-error" role="alert">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <form method="post"
+            action="{{ url_for('login') }}"
+            class="form-stack">
+        <input type="hidden" name="csrf_token"
+               value="{{ csrf_token }}">
+
+        <div class="field">
+          <label for="username">Usuario</label>
+          <input id="username"
+                 name="username"
+                 value="{{ username }}"
+                 autocomplete="username"
+                 autocapitalize="none"
+                 spellcheck="false"
+                 maxlength="100"
+                 required>
+        </div>
+
+        <div class="field">
+          <label for="password">Contraseña</label>
+
+          <div class="password-field">
+            <input id="password"
+                   name="password"
+                   type="password"
+                   autocomplete="current-password"
+                   required>
+
+            <button class="password-toggle"
+                    type="button"
+                    aria-controls="password"
+                    aria-pressed="false">
+              Mostrar
+            </button>
+          </div>
+        </div>
+
+        <button class="button button-primary button-full"
+                type="submit">
+          Ingresar
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <p class="login-footnote">
+        Acceso para estudiantes y docentes de Instituto Alameda.
+      </p>
+    </div>
+
+    <footer class="login-footer">
+      Instituto Alameda · Portal documental
+    </footer>
+  </section>
+</div>
+{% endblock %}

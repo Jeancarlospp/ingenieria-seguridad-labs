@@ -1,0 +1,14 @@
+name: alameda-documental
+
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      SECRET_KEY: "clave-local-de-desarrollo-alameda"
+    volumes:
+      - portal_data:/portal/instance
+
+volumes:
+  portal_data:
