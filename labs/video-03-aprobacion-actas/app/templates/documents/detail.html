@@ -24,6 +24,7 @@
     </a>
 
     {% if can_manage %}
+      <a class="button button-secondary" href="{{ url_for('approval', document_id=document['id']) }}">Revisar y aprobar</a>
       <a class="button button-secondary"
          href="{{ url_for('document_replace',
                           document_id=document['id']) }}">

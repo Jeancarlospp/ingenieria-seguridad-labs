@@ -34,3 +34,35 @@ CREATE TABLE IF NOT EXISTS documents (
     FOREIGN KEY (subject_id) REFERENCES subjects(id),
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS signing_keys (
+    username TEXT PRIMARY KEY REFERENCES users(username),
+    public_pem TEXT NOT NULL,
+    fingerprint TEXT NOT NULL UNIQUE
+);
+CREATE TABLE IF NOT EXISTS approval_requests (
+    nonce TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    payload TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    consumed INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS approvals (
+    id TEXT PRIMARY KEY,
+    document_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    document_hash TEXT NOT NULL,
+    approved_at TEXT NOT NULL,
+    receipt TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS audit_events (
+    id INTEGER PRIMARY KEY,
+    occurred_at TEXT NOT NULL,
+    actor TEXT NOT NULL,
+    origin TEXT NOT NULL,
+    action TEXT NOT NULL,
+    document_id INTEGER,
+    result TEXT NOT NULL,
+    correlation_id TEXT NOT NULL
+);

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Aprobación del documento · Alameda{% endblock %}
+{% block workspace_content %}
+<a class="back-link" href="{{ url_for('document_detail', document_id=document['id']) }}">← Volver al documento</a>
+<header class="page-heading"><div><span class="eyebrow">REVISIÓN DOCENTE</span><h1>Aprobación del documento</h1><p>{{ document['title'] }}</p></div></header>
+<section class="content-panel document-form-panel">
+<h2>{{ 'Aprobada' if current else ('Documento actualizado · requiere nueva aprobación' if approval else 'Pendiente de aprobación') }}</h2>
+{% if approval %}<p>Última aprobación recibida: {{ approval['approved_at'] }}</p><a class="button button-secondary" href="{{ url_for('approval_receipt', document_id=document['id']) }}">Descargar comprobante</a>{% endif %}
+{% if key %}
+<p>Revisa el PDF antes de aprobar. Descarga la solicitud, fírmala con tu clave personal y presenta el archivo firmado. La solicitud caduca en 15 minutos.</p>
+<form method="post" action="{{ url_for('prepare_approval', document_id=document['id']) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button button-secondary">Descargar solicitud de aprobación</button></form>
+<form method="post" enctype="multipart/form-data" class="form-stack" style="margin-top:24px"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><div class="field"><label for="receipt">Solicitud firmada</label><input id="receipt" name="receipt" type="file" accept=".json,application/json" required></div><button class="button button-primary">Registrar aprobación</button></form>
+{% else %}<p>No hay una clave de firma asociada a tu cuenta. Solicita su registro al responsable del portal.</p>{% endif %}
+</section>
+<section class="content-panel" style="margin-top:28px"><div class="panel-heading"><h2>Historial de actividad del documento</h2></div><div class="document-table-wrapper"><table class="document-table"><thead><tr><th>Fecha UTC</th><th>Cuenta</th><th>Origen</th><th>Operación</th><th>Documento</th><th>Resultado</th><th>Referencia</th></tr></thead><tbody>
+{% for event in events %}<tr><td>{{ event['occurred_at'] }}</td><td>{{ event['actor'] }}</td><td>{{ event['origin'] }}</td><td>{{ event['action'] }}</td><td>{{ event['document_id'] }}</td><td>{{ event['result'] }}</td><td>{{ event['correlation_id'] }}</td></tr>{% else %}<tr><td colspan="7">Todavía no hay actividad registrada.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

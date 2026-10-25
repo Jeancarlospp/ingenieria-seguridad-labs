@@ -7,6 +7,12 @@ services:
       - "127.0.0.1:8002:8000"
     environment:
       SECRET_KEY: "clave-local-exclusiva-laboratorio-03"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ingresar', timeout=3)"]
+      interval: 3s
+      timeout: 4s
+      retries: 15
+      start_period: 5s
     volumes:
       - approval_data:/portal/instance
 

@@ -86,7 +86,7 @@ def create_app(test_config=None):
             if existing is None:
                 db.execute(
                     """
-                    INSERT INTO users
+                    INSERT OR IGNORE INTO users
                         (id, username, password_hash, full_name, role)
                     VALUES (?, ?, ?, ?, ?)
                     """,
@@ -195,12 +195,14 @@ def create_app(test_config=None):
             if user and check_password_hash(
                 user["password_hash"], password
             ):
+                app.extensions["audit_event"]("LOGIN", "SUCCESS", actor=user["username"])
                 session.clear()
                 session["user_id"] = user["id"]
                 session["csrf_token"] = secrets.token_urlsafe(32)
 
                 return redirect(url_for("documents"))
 
+            app.extensions["audit_event"]("LOGIN", "FAILED", actor=username[:100] or "anonymous")
             error = "Usuario o contraseña incorrectos."
 
         return render_template(
@@ -682,6 +684,9 @@ def create_app(test_config=None):
             click.echo(
                 "Aviso: quedó un archivo anterior pendiente de limpieza."
             )
+
+    from .approvals import install
+    install(app, get_db, authorized_document, login_required)
 
     with app.app_context():
         initialize_database()
