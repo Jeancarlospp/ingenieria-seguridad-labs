@@ -244,6 +244,10 @@ def create_app(test_config=None):
         if document is None:
             abort(404)
 
+        # Falta comprobar los permisos sobre el documento
+        # y la operación solicitada.
+        return document
+
         if not can_access_document(
             g.user,
             document,
