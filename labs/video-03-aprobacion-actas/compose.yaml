@@ -1,0 +1,14 @@
+name: alameda-aprobaciones
+
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8002:8000"
+    environment:
+      SECRET_KEY: "clave-local-exclusiva-laboratorio-03"
+    volumes:
+      - approval_data:/portal/instance
+
+volumes:
+  approval_data:

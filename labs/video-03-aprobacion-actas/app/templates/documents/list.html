@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Mis documentos · Alameda{% endblock %}
+
+{% block workspace_content %}
+<div class="breadcrumb">Espacio académico / Documentos</div>
+
+<header class="page-heading">
+  <div>
+    <span class="eyebrow">GESTIÓN DOCUMENTAL</span>
+    <h1>Mis documentos</h1>
+    <p class="supporting-text">
+      {% if g.user['role'] == 'teacher' %}
+        Consulta los documentos de tus asignaturas.
+      {% else %}
+        Encuentra los documentos compartidos en tus asignaturas.
+      {% endif %}
+    </p>
+  </div>
+
+  {% if g.user['role'] == 'teacher' %}
+    <a class="button button-primary"
+       href="{{ url_for('document_upload') }}">
+      + Cargar documento
+    </a>
+  {% endif %}
+</header>
+
+<section class="subject-overview" aria-label="Asignaturas asignadas">
+  <span class="subject-overview-label">Tus asignaturas</span>
+  {% for subject in subjects %}
+    <span class="subject-chip">{{ subject['name'] }}</span>
+  {% else %}
+    <span class="supporting-text">Sin asignaturas asignadas.</span>
+  {% endfor %}
+</section>
+
+<section class="content-panel" aria-labelledby="documents-heading">
+  <div class="panel-heading">
+    <div>
+      <h2 id="documents-heading">Archivos disponibles</h2>
+      <p>Documentos a los que tienes acceso con tu cuenta.</p>
+    </div>
+    <span class="file-count">
+      {{ documents|length }}
+      {{ 'documento' if documents|length == 1 else 'documentos' }}
+    </span>
+  </div>
+
+  <form class="document-filters"
+        action="{{ url_for('documents') }}" method="get">
+    <div class="field">
+      <label for="document-search">Buscar por título</label>
+      <input id="document-search" name="q" type="search"
+             value="{{ query }}" placeholder="Nombre del documento">
+    </div>
+
+    <div class="field">
+      <label for="subject-filter">Asignatura</label>
+      <select id="subject-filter" name="subject">
+        <option value="">Todas mis asignaturas</option>
+        {% for subject in subjects %}
+          <option value="{{ subject['id'] }}"
+                  {% if selected_subject == subject['id'] %}selected{% endif %}>
+            {{ subject['name'] }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button class="button button-primary" type="submit">Buscar</button>
+
+    {% if query or selected_subject is not none %}
+      <a class="clear-filters"
+         href="{{ url_for('documents') }}">Limpiar</a>
+    {% endif %}
+  </form>
+
+  {% if documents %}
+    <div class="document-table-wrapper">
+      <table class="document-table">
+        <thead>
+          <tr>
+            <th scope="col">Documento</th>
+            <th scope="col">Asignatura</th>
+            {% if g.user['role'] == 'teacher' %}
+              <th scope="col">Audiencia</th>
+            {% endif %}
+            <th scope="col">Actualizado</th>
+            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for document in documents %}
+            <tr>
+              <td>
+                <a class="document-title"
+                   href="{{ url_for('document_detail',
+                                    document_id=document['id']) }}">
+                  {{ document['title'] }}
+                </a>
+                <span class="document-subtitle">
+                  PDF · {{ document['size_bytes']|filesizeformat }}
+                </span>
+              </td>
+              <td>{{ document['subject_name'] }}</td>
+
+              {% if g.user['role'] == 'teacher' %}
+                <td>
+                  <span class="audience-tag">
+                    {{ 'Solo docente' if document['audience'] == 'teachers'
+                       else 'Estudiantes y docente' }}
+                  </span>
+                </td>
+              {% endif %}
+
+              <td>{{ document['updated_at'][:10] }}</td>
+              <td>
+                <a href="{{ url_for('document_detail',
+                                    document_id=document['id']) }}"
+                   aria-label="Abrir {{ document['title'] }}">
+                  Abrir →
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>
+        {{ 'No encontramos coincidencias'
+           if query or selected_subject is not none
+           else 'Aún no hay documentos disponibles' }}
+      </h3>
+      <p>
+        {{ 'Prueba otro título o cambia el filtro de asignatura.'
+           if query or selected_subject is not none
+           else 'Los documentos compartidos aparecerán en este espacio.' }}
+      </p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

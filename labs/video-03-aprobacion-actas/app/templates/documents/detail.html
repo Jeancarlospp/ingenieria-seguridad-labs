@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document['title'] }} · Alameda{% endblock %}
+
+{% block workspace_content %}
+<a class="back-link" href="{{ url_for('documents') }}">
+  ← Mis documentos
+</a>
+
+<header class="page-heading document-heading">
+  <div>
+    <span class="eyebrow">{{ document['subject_name'] }}</span>
+    <h1>{{ document['title'] }}</h1>
+    <p class="supporting-text">
+      PDF · {{ document['size_bytes']|filesizeformat }}
+    </p>
+  </div>
+
+  <div class="document-actions">
+    <a class="button button-primary"
+       href="{{ url_for('document_file',
+                        document_id=document['id'], download=1) }}">
+      Descargar PDF
+    </a>
+
+    {% if can_manage %}
+      <a class="button button-secondary"
+         href="{{ url_for('document_replace',
+                          document_id=document['id']) }}">
+        Sustituir archivo
+      </a>
+
+      <a class="button button-danger-outline"
+         href="{{ url_for('document_delete',
+                          document_id=document['id']) }}">
+        Eliminar
+      </a>
+    {% endif %}
+  </div>
+</header>
+
+<div class="document-detail-grid">
+  <section class="content-panel pdf-panel"
+           aria-label="Vista previa del documento">
+    <object class="pdf-preview" type="application/pdf"
+            data="{{ url_for('document_file',
+                             document_id=document['id']) }}"
+            aria-label="Vista previa de {{ document['title'] }}">
+      <div class="empty-state">
+        <h2>Vista previa no disponible</h2>
+        <p>Puedes descargar el documento para abrirlo en tu equipo.</p>
+        <a href="{{ url_for('document_file',
+                            document_id=document['id'], download=1) }}">
+          Descargar PDF
+        </a>
+      </div>
+    </object>
+  </section>
+
+  <aside class="content-panel document-information">
+    <h2>Información del documento</h2>
+
+    <dl>
+      <dt>Asignatura</dt>
+      <dd>{{ document['subject_name'] }}</dd>
+
+      <dt>Publicado por</dt>
+      <dd>{{ document['owner_name'] }}</dd>
+
+      <dt>Audiencia</dt>
+      <dd>
+        {{ 'Solo docente' if document['audience'] == 'teachers'
+           else 'Estudiantes y docente' }}
+      </dd>
+
+      <dt>Última actualización</dt>
+      <dd>{{ document['updated_at'][:10] }}</dd>
+
+      <dt>Nombre del archivo</dt>
+      <dd>{{ document['original_name'] }}</dd>
+
+      <dt>Tamaño</dt>
+      <dd>{{ document['size_bytes']|filesizeformat }}</dd>
+    </dl>
+  </aside>
+</div>
+{% endblock %}

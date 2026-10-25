@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar documento · Alameda{% endblock %}
+
+{% block workspace_content %}
+<a class="back-link"
+   href="{{ url_for('document_detail',
+                    document_id=document['id']) }}">
+  ← Volver al documento
+</a>
+
+<section class="content-panel document-form-panel delete-panel">
+  <span class="eyebrow">GESTIÓN DOCUMENTAL</span>
+  <h1>¿Eliminar este documento?</h1>
+
+  <div class="current-file">
+    <strong>{{ document['title'] }}</strong>
+    <span class="field-help">{{ document['subject_name'] }}</span>
+    <span class="field-help">{{ document['original_name'] }}</span>
+  </div>
+
+  <p class="supporting-text">
+    El documento dejará de estar disponible en el portal.
+    Su recuperación requerirá una copia de respaldo.
+  </p>
+
+  <form method="post"
+        action="{{ url_for('document_delete',
+                           document_id=document['id']) }}">
+    <input type="hidden" name="csrf_token"
+           value="{{ csrf_token }}">
+
+    <div class="form-actions">
+      <a class="button button-secondary"
+         href="{{ url_for('document_detail',
+                          document_id=document['id']) }}">
+        Cancelar
+      </a>
+
+      <button class="button button-danger" type="submit">
+        Eliminar documento
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}

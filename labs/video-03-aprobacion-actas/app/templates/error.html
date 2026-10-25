@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% macro error_content() %}
+<section class="error-page">
+  <span class="error-number">{{ code }}</span>
+  <h1>{{ title }}</h1>
+  <p class="supporting-text">{{ message }}</p>
+
+  <a class="button button-primary"
+     href="{{ url_for('documents') if g.user else url_for('login') }}">
+    {{ 'Volver a mis documentos' if g.user else 'Ir al inicio de sesión' }}
+  </a>
+</section>
+{% endmacro %}
+
+{% block title %}{{ title }} · Alameda{% endblock %}
+
+{% block workspace_content %}
+  {{ error_content() }}
+{% endblock %}
+
+{% block public_content %}
+  <div class="public-error">
+    {{ error_content() }}
+  </div>
+{% endblock %}
