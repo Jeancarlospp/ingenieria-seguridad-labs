@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#232824"><title>{% block title %}FORMA — Tecnología con intención{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static',filename='store.css') }}"><script defer src="{{ url_for('static',filename='store.js') }}"></script></head>
+<body><a class="skip" href="#main">Saltar al contenido</a>
+<div class="announcement">Menos ruido. Más de lo que importa.<span>Diseño esencial, todos los días.</span></div>
+<header class="header"><a class="wordmark" href="{{ url_for('catalog') }}" aria-label="FORMA, inicio">FORMA<span>®</span></a><nav aria-label="Principal"><a href="{{ url_for('catalog') }}#coleccion">Colección</a><a href="{{ url_for('orders') }}">Mis pedidos</a></nav><a class="bag" href="{{ url_for('cart') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7zM8 8V6a4 4 0 018 0v2"/></svg>Carrito <span>{{ cart_count }}</span></a></header>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer class="footer"><a class="wordmark" href="{{ url_for('catalog') }}">FORMA<span>®</span></a><p>Objetos que acompañan.<br>Diseño que permanece.</p><div><span>COLECCIÓN ESENCIAL</span><a href="{{ url_for('catalog') }}">Explorar productos ↗</a></div><small>© 2026 FORMA · Precios en USD</small></footer></body></html>

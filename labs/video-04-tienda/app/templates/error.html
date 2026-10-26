@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block title %}No pudimos completar la solicitud · FORMA{% endblock %}{% block content %}<div class="page-shell empty"><p class="eyebrow">{{ error.code }}</p><h1>Volvamos a intentarlo.</h1><p>{{ error.description }}</p><a class="button dark" href="{{ url_for('catalog') }}">Volver a la tienda ↗</a></div>{% endblock %}
