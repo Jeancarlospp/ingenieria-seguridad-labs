@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17324D">
+<title>Gestión de Actas · Alameda</title>
+<style>
+  :root{
+    color-scheme: light;
+    --navy:#17324d; --navy-dark:#10263c; --blue:#2457a7; --blue-hover:#1b4586;
+    --background:#f4f6f9; --surface:#ffffff; --text:#243247; --muted:#526174;
+    --border:#dce3eb; --danger:#b42318; --radius:8px;
+    /* controles */
+    --prev:#1b4586; --prev-bg:#eaf0f8; --prev-bd:#d5e0ee;
+    --det:#8a5a00;  --det-bg:#fdf3e0;  --det-bd:#f0ddb6;
+    --corr:#185c37; --corr-bg:#effaf3; --corr-bd:#a9d5bd;
+    --bad:#8f1d15;  --bad-bg:#fff3f1;  --bad-bd:#e4b7b2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--text);background:var(--background);
+    font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+  button,input,select{font:inherit}
+  a{color:var(--blue)}
+  button{cursor:pointer}
+  button:disabled{cursor:not-allowed;opacity:.6}
+  svg{display:block}
+
+  .institution{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
+  .institution-mark{display:grid;width:44px;height:48px;flex-shrink:0;place-items:center;
+    border:1px solid #8fa8be;border-radius:6px 6px 18px 18px;color:#fff;font:700 28px Georgia,serif}
+  .institution strong{display:block;font-size:20px;letter-spacing:2px}
+  .institution small{display:block;color:#c3d0df;font-size:11px;letter-spacing:.4px}
+  .overline,.eyebrow{display:block;font-size:12px;font-weight:750;letter-spacing:1.6px}
+  .eyebrow{color:var(--blue)}
+  .supporting-text{color:var(--muted)}
+
+  .button{display:inline-flex;min-height:46px;align-items:center;justify-content:center;gap:12px;
+    padding:10px 20px;border:1px solid transparent;border-radius:var(--radius);font-weight:650;text-decoration:none}
+  .button-primary{color:#fff;background:var(--blue)}
+  .button-primary:hover{background:var(--blue-hover)}
+  .button-full{width:100%}
+  .button-secondary{border-color:var(--border);color:var(--text);background:#fff}
+  .button-secondary:hover{background:var(--background)}
+  .button-sm{min-height:40px;padding:8px 14px;font-size:13px;border-radius:6px}
+
+  /* ---------- Login ---------- */
+  .login-page{display:grid;min-height:100vh;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}
+  .login-brand-panel{position:relative;display:flex;min-height:100vh;flex-direction:column;overflow:hidden;
+    padding:48px 56px;color:#fff;background:var(--navy)}
+  .login-introduction{position:relative;z-index:1;max-width:500px;margin:auto 0;padding:70px 0}
+  .login-introduction .overline{color:#b6cce4}
+  .login-introduction h1{margin:22px 0;font:500 clamp(36px,4vw,54px)/1.16 Georgia,serif;letter-spacing:-1px}
+  .login-introduction p{max-width:380px;color:#cfdae7;font-size:17px;line-height:1.8}
+  .brand-divider{width:48px;height:3px;margin:32px 0 16px;background:#c8ab72}
+  .brand-caption{color:#cfdae7;font-size:14px}
+  .brand-decoration{position:absolute;right:-210px;bottom:-230px;width:580px;height:580px;
+    border:1px solid #ffffff12;border-radius:50%;box-shadow:0 0 0 70px #ffffff04,0 0 0 140px #ffffff03}
+  .login-form-panel{display:flex;min-width:0;flex-direction:column;justify-content:center;padding:64px;background:#fff}
+  .login-form-container{width:100%;max-width:420px;margin:auto;padding:40px 0}
+  .login-form-container h2{margin:12px 0;font-size:30px;line-height:1.3;letter-spacing:-.7px}
+  .login-form-container>.supporting-text{margin-bottom:32px}
+  .form-stack{display:grid;gap:24px}
+  .field{display:grid;gap:8px}
+  .field label{font-size:14px;font-weight:650}
+  .field input{width:100%;min-height:48px;padding:11px 14px;border:1px solid #8997a8;border-radius:6px;
+    color:var(--text);background:#fff}
+  .field input:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue)}
+  .field input.err{border-color:var(--danger)}
+  .password-field{position:relative}
+  .password-field input{padding-right:92px}
+  .password-toggle{position:absolute;top:2px;right:2px;min-height:44px;padding:8px 12px;border:none;
+    border-radius:4px;color:var(--blue);background:#fff;font-size:13px;font-weight:650}
+  .login-footnote{margin-top:28px;color:var(--muted);font-size:13px;line-height:1.7}
+  .login-footnote code{background:var(--background);padding:1px 5px;border-radius:4px}
+  .login-footer{padding-top:32px;color:var(--muted);font-size:12px;text-align:center}
+  .otp-input{letter-spacing:10px;text-align:center;font-size:24px}
+  .lock-note{margin-top:14px;color:var(--danger);font-size:13px}
+
+  .message{margin-bottom:24px;padding:12px 16px;border:1px solid;border-radius:6px;font-size:14px}
+  .message-error{border-color:var(--bad-bd);color:var(--bad);background:var(--bad-bg)}
+  .message-success{border-color:var(--corr-bd);color:var(--corr);background:var(--corr-bg)}
+  .message-warn{border-color:var(--det-bd);color:var(--det);background:var(--det-bg)}
+
+  /* ---------- Workspace ---------- */
+  .workspace{display:flex;min-height:100vh}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;z-index:30;display:flex;width:248px;flex-direction:column;
+    padding:32px 20px 24px;color:#fff;background:var(--navy)}
+  .sidebar .institution{margin:0 8px 44px}
+  .sidebar-section{margin:0 12px 14px;color:#b6c9dc;font-size:10px;font-weight:650;letter-spacing:1.5px}
+  .nav-link{display:flex;width:100%;min-height:48px;align-items:center;gap:12px;padding:12px 16px;border:0;
+    border-radius:6px;color:#dce6f0;font-size:14px;text-decoration:none;background:none;text-align:left}
+  .nav-link svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+  .nav-link:hover{background:#ffffff0d}
+  .nav-link.active{color:#fff;background:#ffffff15;box-shadow:inset 3px 0 #b8cde4}
+  .sidebar-bottom{display:flex;align-items:center;gap:8px;margin-top:auto;padding:24px 12px 0;color:#c3d0df;font-size:12px}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:#b8cde4}
+
+  .workspace-body{display:flex;width:calc(100% - 248px);min-width:0;min-height:100vh;flex-direction:column;margin-left:248px}
+  .topbar{display:flex;min-height:88px;align-items:center;justify-content:space-between;gap:20px;
+    padding:16px 40px;border-bottom:1px solid var(--border);background:#fff}
+  .topbar-heading{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px}
+  .account{display:flex;align-items:center;gap:12px}
+  .avatar{display:grid;width:40px;height:40px;place-items:center;border-radius:50%;color:var(--navy);
+    background:#e9eff6;font-size:15px;font-weight:700}
+  .account-details strong{display:block;font-size:13px;font-weight:650}
+  .account-details span{display:block;color:var(--muted);font-size:12px}
+  .logout-button{min-height:44px;margin-left:12px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;
+    color:var(--text);background:#fff;font-size:13px}
+  .logout-button:hover{background:var(--background)}
+
+  .page-content{width:100%;max-width:1200px;flex:1;margin:0 auto;padding:32px 40px 56px}
+  .breadcrumb{margin-bottom:24px;color:var(--muted);font-size:12px}
+  .page-heading{margin-bottom:28px}
+  .page-heading h1{margin:6px 0 8px;font-size:30px;line-height:1.3;letter-spacing:-.8px}
+  .page-heading p{margin:0;font-size:15px;color:var(--muted)}
+
+  .content-panel{overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:#fff;margin-bottom:24px}
+  .panel-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    padding:20px 24px;border-bottom:1px solid var(--border)}
+  .panel-heading h2{margin:0;font-size:16px;font-weight:650}
+  .panel-heading p{margin:3px 0 0;color:var(--muted);font-size:13px}
+
+  table{width:100%;border-collapse:collapse;text-align:left}
+  th{padding:13px 24px;border-bottom:1px solid var(--border);color:var(--muted);background:#fafbfd;
+    font-size:12px;font-weight:650;white-space:nowrap}
+  td{padding:18px 24px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfd}
+  .doc-title{display:block;font-weight:650}
+  .doc-sub{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+  td .row-actions{display:flex;gap:8px;justify-content:flex-end}
+
+  .estado{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:650;white-space:nowrap}
+  .estado.pendiente{color:var(--det);background:var(--det-bg);border:1px solid var(--det-bd)}
+  .estado.aprobada{color:var(--corr);background:var(--corr-bg);border:1px solid var(--corr-bd)}
+  .estado.borrador{color:var(--muted);background:#f1f4f8;border:1px solid var(--border)}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+  .kpi{border:1px solid var(--border);border-radius:var(--radius);background:#fff;padding:18px 20px}
+  .kpi .v{font-size:26px;font-weight:700}
+  .kpi .l{color:var(--muted);font-size:13px;margin-top:2px}
+
+  /* Registro de seguridad */
+  .activity{padding:8px 0}
+  .act-item{display:flex;gap:14px;align-items:flex-start;padding:14px 24px;border-bottom:1px solid var(--border)}
+  .act-item:last-child{border-bottom:none}
+  .act-time{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:2px}
+  .act-text{flex:1;font-size:14px}
+  .badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:3px 9px;border-radius:20px;border:1px solid}
+  .badge.prev{color:var(--prev);background:var(--prev-bg);border-color:var(--prev-bd)}
+  .badge.det{color:var(--det);background:var(--det-bg);border-color:var(--det-bd)}
+  .badge.corr{color:var(--corr);background:var(--corr-bg);border-color:var(--corr-bd)}
+  .badge.bad{color:var(--bad);background:var(--bad-bg);border-color:var(--bad-bd)}
+  .badge.info{color:var(--muted);background:var(--background);border-color:var(--border)}
+  .empty-note{padding:40px 24px;text-align:center;color:var(--muted);font-size:14px}
+
+  /* Admin */
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 24px}
+  .admin-card{text-align:left;border:1px solid var(--border);border-radius:var(--radius);background:#fff;padding:16px 18px}
+  .admin-card:hover{border-color:var(--corr);background:var(--corr-bg)}
+  .admin-card b{display:block;font-size:14px;margin-bottom:3px}
+  .admin-card span{font-size:12.5px;color:var(--muted)}
+
+  .workspace-footer{margin:0 40px;padding:20px 0;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+
+  @media(max-width:900px){
+    .login-page{grid-template-columns:1fr}
+    .login-brand-panel{min-height:auto;padding:28px}
+    .login-form-panel{padding:32px 24px}
+    .sidebar{transform:translateX(-100%)}
+    .workspace-body{width:100%;margin-left:0}
+    .kpis,.admin-grid{grid-template-columns:1fr}
+    .topbar{padding:16px 20px}
+    .page-content{padding:24px 20px 40px}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Datos de demostración ---------------- */
+  var USERS = {
+    "ana.torres@alameda.edu":  {pass:"Alameda2024",   name:"Ana Torres",  role:"Secretaría académica", rol:"secretaria", admin:false},
+    "carlos.ruiz@alameda.edu": {pass:"Direccion2024", name:"Carlos Ruiz", role:"Dirección",            rol:"director",   admin:true}
+  };
+  var MFA_CODE="123456";
+  var LIMIT=3;
+
+  function baseActas(){ return [
+    {id:"ACT-102", titulo:"Acta de calificaciones · 3.º B", comision:"Comisión de evaluación", estado:"pendiente"},
+    {id:"ACT-103", titulo:"Acta de consejo académico",       comision:"Consejo académico",       estado:"borrador"},
+    {id:"ACT-104", titulo:"Acta de titulación · Promoción 24",comision:"Comisión de grado",       estado:"aprobada"},
+    {id:"ACT-105", titulo:"Acta de evaluación docente",       comision:"Vicerrectorado",          estado:"pendiente"}
+  ]; }
+
+  var S={
+    screen:"login",   // login | mfa | app
+    page:"actas",     // actas | seguridad | admin
+    user:null,
+    pendingEmail:null,
+    failed:0,
+    locked:false,
+    flash:null,       // {kind,text}
+    actas:baseActas(),
+    backup:baseActas(),
+    events:[]         // {time,type,text}
+  };
+
+  var root=document.getElementById('root');
+
+  /* ---------------- Utilidades ---------------- */
+  function now(){ return new Date().toTimeString().slice(0,8); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function logEvent(type,text){
+    S.events.unshift({time:now(),type:type,text:text});
+  }
+  function flash(kind,text){ S.flash={kind:kind,text:text}; }
+
+  /* ---------------- Render raíz ---------------- */
+  function render(){
+    if(S.screen==="login") root.innerHTML=viewLogin();
+    else if(S.screen==="mfa") root.innerHTML=viewMfa();
+    else root.innerHTML=viewApp();
+    bind();
+  }
+
+  /* ---------------- Login ---------------- */
+  function viewLogin(){
+    var lock = S.locked
+      ? '<p class="lock-note">Cuenta bloqueada por intentos fallidos. Debe desbloquearla Dirección.</p>' : '';
+    return ''+
+    '<div class="login-page">'+
+      '<section class="login-brand-panel">'+
+        '<div class="institution"><span class="institution-mark">A</span>'+
+          '<span><strong>ALAMEDA</strong><small>Instituto de educación</small></span></div>'+
+        '<div class="login-introduction">'+
+          '<span class="overline">GESTIÓN DE ACTAS</span>'+
+          '<h1>Actas académicas.<br>Aprobación segura.</h1>'+
+          '<p>Portal interno para registrar, revisar y aprobar las actas oficiales de la institución.</p>'+
+          '<div class="brand-divider"></div>'+
+          '<span class="brand-caption">Instituto Alameda · Secretaría académica</span>'+
+        '</div>'+
+        '<div class="brand-decoration" aria-hidden="true"></div>'+
+      '</section>'+
+      '<section class="login-form-panel">'+
+        '<div class="login-form-container">'+
+          '<span class="eyebrow">ACCESO INSTITUCIONAL</span>'+
+          '<h2>Ingresa a tu cuenta</h2>'+
+          '<p class="supporting-text">Usa tus credenciales del Instituto Alameda.</p>'+
+          (S.flash?msg(S.flash):'')+
+          '<div class="form-stack">'+
+            '<div class="field"><label for="email">Correo institucional</label>'+
+              '<input id="email" type="text" placeholder="nombre@alameda.edu" autocomplete="off"></div>'+
+            '<div class="field"><label for="pass">Contraseña</label>'+
+              '<div class="password-field">'+
+                '<input id="pass" type="password" placeholder="••••••••">'+
+                '<button class="password-toggle" data-toggle>Mostrar</button>'+
+              '</div></div>'+
+            '<button class="button button-primary button-full" data-login '+(S.locked?'disabled':'')+'>'+
+              'Ingresar <span aria-hidden="true">&rarr;</span></button>'+
+          '</div>'+
+          lock+
+          '<p class="login-footnote"><b>Cuentas de prueba</b><br>'+
+            'Secretaría: <code>ana.torres@alameda.edu</code> / <code>Alameda2024</code><br>'+
+            'Dirección: <code>carlos.ruiz@alameda.edu</code> / <code>Direccion2024</code><br>'+
+            'Código de verificación (MFA): <code>123456</code></p>'+
+          '<footer class="login-footer">Instituto Alameda · Gestión de actas</footer>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  function doLogin(){
+    S.flash=null;
+    var email=(document.getElementById('email').value||'').trim().toLowerCase();
+    var pass=document.getElementById('pass').value||'';
+    var eEl=document.getElementById('email'), pEl=document.getElementById('pass');
+
+    if(S.locked) return;
+
+    // Preventivo: validación de entrada
+    if(!email||!pass){
+      flash('error','Completa correo y contraseña.');
+      logEvent('prev','Validación de entrada: formulario de acceso incompleto, rechazado.');
+      return render();
+    }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+      flash('error','El correo no tiene un formato válido.');
+      logEvent('prev','Validación de entrada: formato de correo inválido.');
+      return render();
+    }
+
+    var u=USERS[email];
+    if(!u||u.pass!==pass){
+      S.failed++;
+      // Detectivo: registro del intento fallido
+      logEvent('det','Inicio de sesión FALLIDO para "'+email+'" (intento '+S.failed+').');
+      if(S.failed===LIMIT-1){
+        logEvent('bad','Alerta: múltiples intentos fallidos consecutivos.');
+        flash('warn','Se han detectado varios intentos fallidos de inicio de sesión.');
+      }
+      // Preventivo: límite de intentos -> bloqueo
+      if(S.failed>=LIMIT){
+        S.locked=true;
+        logEvent('prev','Límite de intentos alcanzado: la cuenta fue BLOQUEADA.');
+        flash('error','Cuenta bloqueada tras '+LIMIT+' intentos fallidos. Contacta a Dirección.');
+      } else {
+        flash('error','Credenciales incorrectas.');
+      }
+      return render();
+    }
+
+    // Correcto -> MFA (preventivo)
+    S.pendingEmail=email; S.failed=0;
+    logEvent('info','Contraseña correcta para "'+email+'". Se solicita segundo factor.');
+    S.screen="mfa";
+    render();
+  }
+
+  /* ---------------- MFA ---------------- */
+  function viewMfa(){
+    return ''+
+    '<div class="login-page">'+
+      '<section class="login-brand-panel">'+
+        '<div class="institution"><span class="institution-mark">A</span>'+
+          '<span><strong>ALAMEDA</strong><small>Instituto de educación</small></span></div>'+
+        '<div class="login-introduction">'+
+          '<span class="overline">VERIFICACIÓN EN DOS PASOS</span>'+
+          '<h1>Un paso más<br>para protegerte.</h1>'+
+          '<p>La contraseña por sí sola no basta: confirmamos tu identidad con un segundo factor.</p>'+
+          '<div class="brand-divider"></div>'+
+          '<span class="brand-caption">Control preventivo · MFA</span>'+
+        '</div>'+
+        '<div class="brand-decoration" aria-hidden="true"></div>'+
+      '</section>'+
+      '<section class="login-form-panel">'+
+        '<div class="login-form-container">'+
+          '<span class="eyebrow">SEGUNDO FACTOR</span>'+
+          '<h2>Ingresa tu código</h2>'+
+          '<p class="supporting-text">Enviamos un código de 6 dígitos a tu dispositivo.</p>'+
+          msg({kind:'warn',text:'Código de verificación (demo): '+MFA_CODE}) +
+          (S.flash?msg(S.flash):'')+
+          '<div class="form-stack">'+
+            '<div class="field"><label for="otp">Código de verificación</label>'+
+              '<input id="otp" class="otp-input" maxlength="6" inputmode="numeric" placeholder="______"></div>'+
+            '<button class="button button-primary button-full" data-otp>Verificar</button>'+
+            '<button class="button button-secondary button-full" data-cancel>Cancelar</button>'+
+          '</div>'+
+          '<footer class="login-footer">Instituto Alameda · Gestión de actas</footer>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  function doMfa(){
+    var code=(document.getElementById('otp').value||'').trim();
+    if(code!==MFA_CODE){
+      flash('error','Código incorrecto.');
+      logEvent('prev','MFA: segundo factor incorrecto, acceso NO concedido.');
+      return render();
+    }
+    S.user=USERS[S.pendingEmail]; S.pendingEmail=null;
+    S.screen="app"; S.page="actas"; S.flash=null;
+    logEvent('prev','MFA verificado: acceso concedido a '+S.user.name+' ('+S.user.role+').');
+    render();
+  }
+
+  /* ---------------- Workspace ---------------- */
+  function msg(f){ return '<div class="message message-'+f.kind+'">'+esc(f.text)+'</div>'; }
+
+  function viewApp(){
+    var nav=''+
+      navLink('actas','Actas','M3 7h7l2 2h9v11H3z M3 7V4h7l2 3')+
+      navLink('seguridad','Registro de seguridad','M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6z')+
+      (S.user.admin?navLink('admin','Administración','M12 3l2.5 2 3.5-.5L18 8l2 3-2 3 .5 3.5L15 18l-3 2-3-2-3.5.5L5 15l-2-3 2-3-.5-3.5L8 5z'):'');
+
+    var body;
+    if(S.page==="actas") body=pageActas();
+    else if(S.page==="seguridad") body=pageSeguridad();
+    else body=pageAdmin();
+
+    var flashHtml=S.flash?msg(S.flash):'';
+    S.flash=null; // el flash se muestra una vez
+
+    return ''+
+    '<div class="workspace">'+
+      '<aside class="sidebar">'+
+        '<div class="institution"><span class="institution-mark">A</span>'+
+          '<span><strong>ALAMEDA</strong><small>Instituto de educación</small></span></div>'+
+        '<div class="sidebar-section">GESTIÓN DE ACTAS</div>'+
+        '<nav>'+nav+'</nav>'+
+        '<div class="sidebar-bottom"><span class="status-dot"></span> Portal de actas</div>'+
+      '</aside>'+
+      '<div class="workspace-body">'+
+        '<header class="topbar">'+
+          '<div class="topbar-heading"><span>Gestión de actas</span></div>'+
+          '<div class="account">'+
+            '<span class="avatar">'+esc(S.user.name.charAt(0))+'</span>'+
+            '<div class="account-details"><strong>'+esc(S.user.name)+'</strong><span>'+esc(S.user.role)+'</span></div>'+
+            '<button class="logout-button" data-logout>Salir</button>'+
+          '</div>'+
+        '</header>'+
+        '<main class="page-content">'+flashHtml+body+'</main>'+
+        '<footer class="workspace-footer">Instituto Alameda · Gestión documental de actas</footer>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function navLink(page,label,path){
+    return '<button class="nav-link '+(S.page===page?'active':'')+'" data-nav="'+page+'">'+
+      '<svg viewBox="0 0 24 24"><path d="'+path+'"/></svg>'+label+'</button>';
+  }
+
+  function pageActas(){
+    var total=S.actas.length;
+    var pend=S.actas.filter(function(a){return a.estado==="pendiente";}).length;
+    var apro=S.actas.filter(function(a){return a.estado==="aprobada";}).length;
+
+    var rows=S.actas.map(function(a){
+      var actions;
+      if(a.estado==="aprobada"){
+        actions='<span class="supporting-text" style="font-size:13px">Aprobada</span>';
+      } else {
+        actions=''+
+          '<button class="button button-secondary button-sm" data-approve="'+a.id+'">Aprobar</button>'+
+          '<button class="button button-secondary button-sm" data-delete="'+a.id+'">Eliminar</button>';
+      }
+      return '<tr>'+
+        '<td><span class="doc-title">'+esc(a.titulo)+'</span>'+
+            '<span class="doc-sub">'+esc(a.id)+' · '+esc(a.comision)+'</span></td>'+
+        '<td><span class="estado '+a.estado+'">'+cap(a.estado)+'</span></td>'+
+        '<td><div class="row-actions">'+actions+'</div></td>'+
+      '</tr>';
+    }).join('');
+
+    return ''+
+    '<div class="breadcrumb">Inicio · Actas</div>'+
+    '<div class="page-heading"><span class="eyebrow">EXPEDIENTES</span>'+
+      '<h1>Actas de la institución</h1>'+
+      '<p>Revisa y aprueba las actas oficiales. Cada acción queda registrada en seguridad.</p></div>'+
+    '<div class="kpis">'+
+      '<div class="kpi"><div class="v">'+total+'</div><div class="l">Actas registradas</div></div>'+
+      '<div class="kpi"><div class="v">'+pend+'</div><div class="l">Pendientes de aprobación</div></div>'+
+      '<div class="kpi"><div class="v">'+apro+'</div><div class="l">Aprobadas</div></div>'+
+    '</div>'+
+    '<div class="content-panel">'+
+      '<div class="panel-heading"><div><h2>Expedientes de actas</h2>'+
+        '<p>Aprobar y eliminar requieren autorización de Dirección.</p></div></div>'+
+      '<table><thead><tr><th>Acta</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+    '</div>';
+  }
+
+  function pageSeguridad(){
+    var items = S.events.length
+      ? '<div class="activity">'+S.events.map(function(e){
+          return '<div class="act-item"><span class="act-time">'+e.time+'</span>'+
+            '<span class="act-text"><span class="badge '+e.type+'">'+label(e.type)+'</span> '+esc(e.text)+'</span></div>';
+        }).join('')+'</div>'
+      : '<div class="empty-note">Aún no hay eventos registrados.</div>';
+    return ''+
+    '<div class="breadcrumb">Inicio · Registro de seguridad</div>'+
+    '<div class="page-heading"><span class="eyebrow">AUDITORÍA</span>'+
+      '<h1>Registro de seguridad</h1>'+
+      '<p>Control detectivo: cada evento queda registrado y clasificado por tipo de control.</p></div>'+
+    '<div class="content-panel">'+
+      '<div class="panel-heading"><div><h2>Eventos del sistema</h2>'+
+        '<p>Azul: preventivo · Ámbar: detectivo · Verde: correctivo.</p></div>'+
+        '<button class="button button-secondary button-sm" data-clear>Limpiar registro</button></div>'+
+      items+
+    '</div>';
+  }
+
+  function pageAdmin(){
+    return ''+
+    '<div class="breadcrumb">Inicio · Administración</div>'+
+    '<div class="page-heading"><span class="eyebrow">DIRECCIÓN</span>'+
+      '<h1>Administración</h1>'+
+      '<p>Controles correctivos: recuperar el estado normal después de un incidente.</p></div>'+
+    '<div class="content-panel">'+
+      '<div class="panel-heading"><div><h2>Acciones correctivas</h2>'+
+        '<p>Disponibles solo para Dirección.</p></div></div>'+
+      '<div class="admin-grid">'+
+        '<button class="admin-card" data-corr="restore"><b>Restaurar respaldo de actas</b>'+
+          '<span>Devuelve el expediente al último estado válido.</span></button>'+
+        '<button class="admin-card" data-corr="sessions"><b>Revocar sesiones activas</b>'+
+          '<span>Cierra toda sesión abierta, incluida la de un atacante.</span></button>'+
+        '<button class="admin-card" data-corr="unlock"><b>Desbloquear cuenta / restablecer credenciales</b>'+
+          '<span>Recupera el acceso tras un bloqueo o compromiso.</span></button>'+
+        '<button class="admin-card" data-corr="patch"><b>Aplicar parche de seguridad</b>'+
+          '<span>Corrige la vulnerabilidad que permitió el incidente.</span></button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  /* ---------------- Acciones ---------------- */
+  function approve(id){
+    var a=find(id); if(!a) return;
+    if(!S.user.admin){
+      logEvent('prev','Autorización DENEGADA: "'+S.user.role+'" no puede aprobar actas.');
+      logEvent('det','Intento de aprobación no autorizada sobre '+id+' registrado para auditoría.');
+      flash('error','Acceso denegado: solo Dirección puede aprobar actas.');
+      return render();
+    }
+    a.estado="aprobada";
+    logEvent('det','Dirección aprobó el acta '+id+'.');
+    flash('success','Acta '+id+' aprobada correctamente.');
+    render();
+  }
+  function del(id){
+    var a=find(id); if(!a) return;
+    if(!S.user.admin){
+      logEvent('prev','Autorización DENEGADA: "'+S.user.role+'" no puede eliminar actas.');
+      logEvent('det','Intento de eliminación no autorizada sobre '+id+' registrado para auditoría.');
+      flash('error','Acceso denegado: solo Dirección puede eliminar actas.');
+      return render();
+    }
+    S.actas=S.actas.filter(function(x){return x.id!==id;});
+    logEvent('det','Dirección eliminó el acta '+id+' ("'+a.titulo+'").');
+    flash('warn','Acta '+id+' eliminada. Puedes restaurarla desde Administración.');
+    render();
+  }
+  function corrective(kind){
+    if(kind==="restore"){
+      S.actas=S.backup.map(function(a){return Object.assign({},a);});
+      logEvent('corr','Expediente de actas restaurado desde el último respaldo válido.');
+      flash('success','Control correctivo aplicado: actas restauradas.');
+    } else if(kind==="sessions"){
+      logEvent('corr','Se revocaron todas las sesiones activas.');
+      flash('success','Control correctivo aplicado: sesiones revocadas.');
+    } else if(kind==="unlock"){
+      S.locked=false; S.failed=0;
+      logEvent('corr','Cuenta desbloqueada y credenciales restablecidas.');
+      flash('success','Control correctivo aplicado: la cuenta puede volver a ingresar.');
+    } else if(kind==="patch"){
+      logEvent('corr','Parche de seguridad aplicado para corregir la vulnerabilidad.');
+      flash('success','Control correctivo aplicado: vulnerabilidad corregida.');
+    }
+    render();
+  }
+
+  function find(id){ return S.actas.find(function(a){return a.id===id;}); }
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+  function label(t){ return {prev:"Preventivo",det:"Detectivo",corr:"Correctivo",bad:"Alerta",info:"Info"}[t]; }
+
+  /* ---------------- Enlazado de eventos ---------------- */
+  function bind(){
+    // Login
+    var lb=document.querySelector('[data-login]'); if(lb) lb.onclick=doLogin;
+    var tg=document.querySelector('[data-toggle]');
+    if(tg) tg.onclick=function(){ var p=document.getElementById('pass');
+      p.type=p.type==="password"?"text":"password"; tg.textContent=p.type==="password"?"Mostrar":"Ocultar"; };
+    var pass=document.getElementById('pass'); if(pass) pass.onkeydown=function(e){ if(e.key==="Enter") doLogin(); };
+
+    // MFA
+    var ob=document.querySelector('[data-otp]'); if(ob) ob.onclick=doMfa;
+    var otp=document.getElementById('otp'); if(otp){ otp.focus(); otp.onkeydown=function(e){ if(e.key==="Enter") doMfa(); }; }
+    var cb=document.querySelector('[data-cancel]'); if(cb) cb.onclick=function(){
+      S.pendingEmail=null; S.screen="login"; S.flash=null; render(); };
+
+    // Nav
+    each('[data-nav]',function(b){ b.onclick=function(){ S.page=b.getAttribute('data-nav'); render(); }; });
+    var out=document.querySelector('[data-logout]'); if(out) out.onclick=function(){
+      logEvent('info','Sesión cerrada por '+S.user.name+'.');
+      S.user=null; S.screen="login"; S.flash=null; render(); };
+
+    // Actas
+    each('[data-approve]',function(b){ b.onclick=function(){ approve(b.getAttribute('data-approve')); }; });
+    each('[data-delete]', function(b){ b.onclick=function(){ del(b.getAttribute('data-delete')); }; });
+
+    // Seguridad
+    var cl=document.querySelector('[data-clear]'); if(cl) cl.onclick=function(){ S.events=[]; render(); };
+
+    // Admin
+    each('[data-corr]',function(b){ b.onclick=function(){ corrective(b.getAttribute('data-corr')); }; });
+  }
+  function each(sel,fn){ Array.prototype.forEach.call(document.querySelectorAll(sel),fn); }
+
+  render();
+})();
+</script>
+</body>
+</html>
